@@ -1,0 +1,358 @@
+{
+  "input": {
+    "uid": "mani1122",
+    "workflow": {
+      "1": {
+        "inputs": {
+          "unet_name": "flux/flux1-dev.safetensors",
+          "weight_dtype": "fp8_e4m3fn_fast"
+        },
+        "class_type": "UNETLoader",
+        "_meta": {
+          "title": "Load Diffusion Model"
+        }
+      },
+      "2": {
+        "inputs": {
+          "skip_mmdit_layers": "10",
+          "skip_dit_layers": "3, 4",
+          "model": ["1", 0]
+        },
+        "class_type": "SkipLayerForward",
+        "_meta": {
+          "title": "FluxMod Prune Model Layers"
+        }
+      },
+      "3": {
+        "inputs": {
+          "lora_name": "flux_tools/42lux-UltimateAtHome-flux-highresfix.safetensors",
+          "strength_model": 0.24999999999999958,
+          "model": ["2", 0]
+        },
+        "class_type": "LoraLoaderModelOnly",
+        "_meta": {
+          "title": "LoraLoaderModelOnly"
+        }
+      },
+      "4": {
+        "inputs": {
+          "lora_name": "flux/Dramatic_portrait_v1-Flux.safetensors",
+          "strength_model": 0.5999999999999996,
+          "model": ["3", 0]
+        },
+        "class_type": "LoraLoaderModelOnly",
+        "_meta": {
+          "title": "LoraLoaderModelOnly"
+        }
+      },
+      "6": {
+        "inputs": {
+          "model": ["4", 0]
+        },
+        "class_type": "ConfigureModifiedFlux",
+        "_meta": {
+          "title": "Configure Modified Flux"
+        }
+      },
+      "7": {
+        "inputs": {
+          "scale": 1.75,
+          "rescale": 0,
+          "model": ["6", 0]
+        },
+        "class_type": "PAGAttention",
+        "_meta": {
+          "title": "Apply Flux PAG Attention"
+        }
+      },
+      "9": {
+        "inputs": {
+          "clip_name1": "clip_l.safetensors",
+          "clip_name2": "t5xxl_fp16.safetensors",
+          "type": "flux",
+          "device": "default"
+        },
+        "class_type": "DualCLIPLoader",
+        "_meta": {
+          "title": "DualCLIPLoader"
+        }
+      },
+      "10": {
+        "inputs": {
+          "vae_name": "FLUX1/ae.safetensors"
+        },
+        "class_type": "VAELoader",
+        "_meta": {
+          "title": "Load VAE"
+        }
+      },
+      "11": {
+        "inputs": {
+          "text": "Minimalist Grace, stunning male model, flawless porcelain skin, poised expression, couture headpiece, white fabric petals, cascading floral gown, statement drop earrings, faceted gemstones, soft blush tones, bold lashes, glossy coral lips, elegant and sophisticated, close-up editorial portrait, minimalist studio, clean white background, soft diffused lighting, intricate details, luminous gemstone earrings",
+          "model": "clip_l",
+          "token_count": "74",
+          "clip": ["9", 0]
+        },
+        "class_type": "PromptWithTokenCounter",
+        "_meta": {
+          "title": "Prompt with Token Counter"
+        }
+      },
+      "12": {
+        "inputs": {
+          "text": "Parameters: 8k, hyper-realistic, cinematic quality, photorealistic, HDR, high-fashion editorial photography, sharp detail, minimalist composition, vibrant tones, matte finish. Subject: Minimalist Grace, a stunning red haired female model with flawless porcelain skin and a poised expression. She wears a couture headpiece crafted from delicate white satin fabric petals that cascade seamlessly into her high-neck floral gown. Her look is elevated by statement drop earrings featuring large faceted gemstones that catch the light. Her makeup is refined, with soft blush tones, bold lashes, and glossy coral lips, exuding elegance and sophistication. Instructions: Capture a close-up editorial portrait in a minimalist studio setting with a clean white background to enhance the monochromatic floral textures. Use soft, diffused lighting to highlight the intricate details of the headpiece, the luminous gemstone earrings, and the model’s radiant complexion. The composition should emphasize the interplay of textures and the model's graceful yet striking presence. Style Reference: Inspired by Vogue Brasil covers, blending haute couture design with minimalist aesthetics. The look combines avant-garde artistry with timeless beauty for a bold yet delicate visual statement. Camera Settings: Canon EOS R5, 85mm f/1.8 lens, ISO 100, f/2.8 aperture, 1/200 shutter speed. Use softbox lighting to create even illumination and subtle highlights, ensuring a polished, high-fashion result.\n",
+          "model": "t5xxl",
+          "token_count": "323",
+          "clip": ["9", 0]
+        },
+        "class_type": "PromptWithTokenCounter",
+        "_meta": {
+          "title": "Prompt with Token Counter"
+        }
+      },
+      "14": {
+        "inputs": {
+          "resolution": "1984x1472 (2.92MP) - 4:3",
+          "batch_size": 1,
+          "width_override": 0,
+          "height_override": 0
+        },
+        "class_type": "FluxEmptyLatentSizePicker",
+        "_meta": {
+          "title": "Flux Empty Latent Size Picker"
+        }
+      },
+      "15": {
+        "inputs": {
+          "clip_l": ["11", 1],
+          "t5xxl": ["12", 1],
+          "guidance": 2.499999999999999,
+          "clip": ["9", 0]
+        },
+        "class_type": "CLIPTextEncodeFlux",
+        "_meta": {
+          "title": "CLIPTextEncodeFlux"
+        }
+      },
+      "16": {
+        "inputs": {
+          "noise_seed": 152252163713636
+        },
+        "class_type": "RandomNoise",
+        "_meta": {
+          "title": "RandomNoise"
+        }
+      },
+      "17": {
+        "inputs": {
+          "noise": ["16", 0],
+          "guider": ["18", 0],
+          "sampler": ["20", 0],
+          "sigmas": ["19", 0],
+          "latent_image": ["39", 1]
+        },
+        "class_type": "SamplerCustomAdvanced",
+        "_meta": {
+          "title": "SamplerCustomAdvanced"
+        }
+      },
+      "18": {
+        "inputs": {
+          "model": ["39", 0],
+          "conditioning": ["15", 0]
+        },
+        "class_type": "BasicGuider",
+        "_meta": {
+          "title": "BasicGuider"
+        }
+      },
+      "19": {
+        "inputs": {
+          "scheduler": "sgm_uniform",
+          "steps": 20,
+          "denoise": 1,
+          "model": ["39", 0]
+        },
+        "class_type": "BasicScheduler",
+        "_meta": {
+          "title": "BasicScheduler"
+        }
+      },
+      "20": {
+        "inputs": {
+          "dishonesty_factor": -0.019999999999999997,
+          "start_percent": 0.28000000000000014,
+          "end_percent": 0.95,
+          "sampler": ["21", 0]
+        },
+        "class_type": "LyingSigmaSampler",
+        "_meta": {
+          "title": "Lying Sigma Sampler"
+        }
+      },
+      "21": {
+        "inputs": {
+          "sampler_name": "dpmpp_2m"
+        },
+        "class_type": "KSamplerSelect",
+        "_meta": {
+          "title": "KSamplerSelect"
+        }
+      },
+      "22": {
+        "inputs": {
+          "samples": ["17", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
+      },
+      "27": {
+        "inputs": {
+          "max_shift": 1.5,
+          "base_shift": 0.5,
+          "model": ["7", 0],
+          "latent": ["50", 0]
+        },
+        "class_type": "ModelSamplingFluxNormalized",
+        "_meta": {
+          "title": "Model Sampling Flux Normalized"
+        }
+      },
+      "32": {
+        "inputs": {
+          "sampler_name": "uni_pc"
+        },
+        "class_type": "KSamplerSelect",
+        "_meta": {
+          "title": "KSamplerSelect"
+        }
+      },
+      "33": {
+        "inputs": {
+          "model": ["27", 0],
+          "conditioning": ["15", 0]
+        },
+        "class_type": "BasicGuider",
+        "_meta": {
+          "title": "BasicGuider"
+        }
+      },
+      "34": {
+        "inputs": {
+          "scheduler": "ays",
+          "steps": 12,
+          "denoise": 0.35999999999999943,
+          "model": ["27", 0]
+        },
+        "class_type": "BasicScheduler",
+        "_meta": {
+          "title": "BasicScheduler"
+        }
+      },
+      "35": {
+        "inputs": {
+          "factor": 0.9999999999999999,
+          "start": 0.10000000000000006,
+          "end": 0.7999999999999998,
+          "sigmas": ["34", 0]
+        },
+        "class_type": "MultiplySigmas",
+        "_meta": {
+          "title": "Multiply Sigmas (stateless)"
+        }
+      },
+      "36": {
+        "inputs": {
+          "noise": ["16", 0],
+          "guider": ["33", 0],
+          "sampler": ["32", 0],
+          "sigmas": ["35", 0],
+          "latent_image": ["27", 1]
+        },
+        "class_type": "SamplerCustomAdvanced",
+        "_meta": {
+          "title": "SamplerCustomAdvanced"
+        }
+      },
+      "39": {
+        "inputs": {
+          "max_shift": 1.15,
+          "base_shift": 0.5,
+          "model": ["7", 0],
+          "latent": ["14", 0]
+        },
+        "class_type": "ModelSamplingFluxNormalized",
+        "_meta": {
+          "title": "Model Sampling Flux Normalized"
+        }
+      },
+      "40": {
+        "inputs": {
+          "samples": ["36", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
+      },
+      "50": {
+        "inputs": {
+          "target_resolution": "6MP",
+          "upscale_method": "nearest-exact",
+          "noise_scale": 0.29999999999999993,
+          "blend_opacity": 10,
+          "image": ["22", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "FluxHighresFixScaler",
+        "_meta": {
+          "title": "Flux Highres Fix Scaler"
+        }
+      },
+      "51": {
+        "inputs": {
+          "input_block": false,
+          "middle_block": false,
+          "output_block": false,
+          "slice_b1": 640,
+          "slice_b2": 320,
+          "b1": 1.1,
+          "b2": 1.2,
+          "s1": 0.9,
+          "s2": 0.2,
+          "start_percent": 0,
+          "end_percent": 1,
+          "threshold": 1
+        },
+        "class_type": "FreeU2PPM",
+        "_meta": {
+          "title": "ppm dummy node"
+        }
+      },
+      "53": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["22", 0]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
+      },
+      "54": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["40", 0]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
+      }
+    }
+  }
+}

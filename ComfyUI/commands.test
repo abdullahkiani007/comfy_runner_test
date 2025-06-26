@@ -1,0 +1,19 @@
+## Basic Setup
+apt-get update && apt-get install apt-file -y && apt-file update && apt-get install vim -y
+
+
+## ComfyUI Related
+comfy node update all
+comfy node show all
+## Installing missing nodes [Supported by Official CLI]
+ 
+comfy node install-deps --workflow test-workflow.json
+or 
+comfy node deps-in-workflow --workflow test-workflow.json --output test.json
+comfy node install-deps --deps test.json
+
+## Managing models [Tool: https://github.com/piyushK52/comfy_runner]
+comfy model
+
+## Managing the 'Manager'
+comfy manager

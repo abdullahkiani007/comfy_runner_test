@@ -1,0 +1,482 @@
+{
+  "input": {
+    "uid": "mani1122",
+    "customModels": [
+      {
+        "filename": "clip_l.safetensors",
+        "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+        "dest": "/runpod-volume/ComfyUI/models/clip",
+        "persist":"False"
+      },
+      {
+        "filename": "flux1-dev-custom-anna.safetensors",
+        "url": "https://example-bucket-waleed.s3.us-east-1.amazonaws.com/Anna_000000500.safetensors",
+        "dest": "/runpod-volume/ComfyUI/models/loras/flux",
+        "persist":"False"
+      }
+    ],
+    "customNodes": [
+      {
+        "title": "TK",
+        "url": "https://github.com/lodestone-rock/ComfyUI_FluxMod.git"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/omar92/ComfyUI-QualityOfLifeSuit_Omar92"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/cubiq/ComfyUI_essentials"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/logtd/ComfyUI-Fluxtapoz"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/42lux/ComfyUI-42lux.git"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/Jonseed/ComfyUI-Detail-Daemon.git"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/ltdrdata/ComfyUI-Inspire-Pack"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/pamparamm/ComfyUI-ppm"
+      },
+      {
+        "title": "TK",
+        "url": "https://github.com/ltdrdata/ComfyUI-Manager.git"
+      }
+    ],
+    "workflow": {
+      "1": {
+        "inputs": {
+          "unet_name": "flux1-dev.safetensors",
+          "weight_dtype": "default"
+        },
+        "class_type": "UNETLoader",
+        "_meta": {
+          "title": "Load Diffusion Model"
+        }
+      },
+      "3": {
+        "inputs": {
+          "lora_name": "flux_tools/42lux-UltimateAtHome-flux-highresfix.safetensors",
+          "strength_model": 0.24999999999999958,
+          "model": ["61", 0]
+        },
+        "class_type": "LoraLoaderModelOnly",
+        "_meta": {
+          "title": "LoraLoaderModelOnly"
+        }
+      },
+      "4": {
+        "inputs": {
+          "lora_name": "flux/flux1-dev-custom-anna.safetensors",
+          "strength_model": 0.9,
+          "model": ["3", 0]
+        },
+        "class_type": "LoraLoaderModelOnly",
+        "_meta": {
+          "title": "LoraLoader"
+        }
+      },
+      "6": {
+        "inputs": {
+          "model": ["4", 0]
+        },
+        "class_type": "ConfigureModifiedFlux",
+        "_meta": {
+          "title": "Configure Modified Flux"
+        }
+      },
+      "7": {
+        "inputs": {
+          "scale": 1.75,
+          "rescale": 0,
+          "model": ["6", 0]
+        },
+        "class_type": "PAGAttention",
+        "_meta": {
+          "title": "Apply Flux PAG Attention"
+        }
+      },
+      "9": {
+        "inputs": {
+          "clip_name1": "clip_l.safetensors",
+          "clip_name2": "t5xxl_fp16.safetensors",
+          "type": "flux",
+          "device": "default"
+        },
+        "class_type": "DualCLIPLoader",
+        "_meta": {
+          "title": "DualCLIPLoader"
+        }
+      },
+      "10": {
+        "inputs": {
+          "vae_name": "ae.safetensors"
+        },
+        "class_type": "VAELoader",
+        "_meta": {
+          "title": "Load VAE"
+        }
+      },
+      "11": {
+        "inputs": {
+          "text": ["65", 0],
+          "model": "clip_l",
+          "token_count": "9",
+          "clip": ["60", 0]
+        },
+        "class_type": "PromptWithTokenCounter",
+        "_meta": {
+          "title": "Prompt with Token Counter"
+        }
+      },
+      "12": {
+        "inputs": {
+          "text": ["65", 0],
+          "model": "t5xxl",
+          "token_count": "14",
+          "clip": ["60", 0]
+        },
+        "class_type": "PromptWithTokenCounter",
+        "_meta": {
+          "title": "Prompt with Token Counter"
+        }
+      },
+      "14": {
+        "inputs": {
+          "resolution": "1408x1408 (1.98MP) - 1:1",
+          "batch_size": 1,
+          "width_override": 0,
+          "height_override": 0
+        },
+        "class_type": "FluxEmptyLatentSizePicker",
+        "_meta": {
+          "title": "Flux Empty Latent Size Picker"
+        }
+      },
+      "15": {
+        "inputs": {
+          "clip_l": ["11", 1],
+          "t5xxl": ["12", 1],
+          "guidance": 2.499999999999999,
+          "clip": ["60", 0]
+        },
+        "class_type": "CLIPTextEncodeFlux",
+        "_meta": {
+          "title": "CLIPTextEncodeFlux"
+        }
+      },
+      "16": {
+        "inputs": {
+          "noise_seed": 584858549978494
+        },
+        "class_type": "RandomNoise",
+        "_meta": {
+          "title": "RandomNoise"
+        }
+      },
+      "17": {
+        "inputs": {
+          "noise": ["16", 0],
+          "guider": ["18", 0],
+          "sampler": ["20", 0],
+          "sigmas": ["19", 0],
+          "latent_image": ["39", 1]
+        },
+        "class_type": "SamplerCustomAdvanced",
+        "_meta": {
+          "title": "SamplerCustomAdvanced"
+        }
+      },
+      "18": {
+        "inputs": {
+          "model": ["39", 0],
+          "conditioning": ["15", 0]
+        },
+        "class_type": "BasicGuider",
+        "_meta": {
+          "title": "BasicGuider"
+        }
+      },
+      "19": {
+        "inputs": {
+          "scheduler": "sgm_uniform",
+          "steps": 20,
+          "denoise": 1,
+          "model": ["39", 0]
+        },
+        "class_type": "BasicScheduler",
+        "_meta": {
+          "title": "BasicScheduler"
+        }
+      },
+      "20": {
+        "inputs": {
+          "dishonesty_factor": -0.019999999999999997,
+          "start_percent": 0.28000000000000014,
+          "end_percent": 0.95,
+          "sampler": ["21", 0]
+        },
+        "class_type": "LyingSigmaSampler",
+        "_meta": {
+          "title": "Lying Sigma Sampler"
+        }
+      },
+      "21": {
+        "inputs": {
+          "sampler_name": "dpmpp_2m"
+        },
+        "class_type": "KSamplerSelect",
+        "_meta": {
+          "title": "KSamplerSelect"
+        }
+      },
+      "22": {
+        "inputs": {
+          "samples": ["17", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
+      },
+      "27": {
+        "inputs": {
+          "max_shift": 1.5,
+          "base_shift": 0.5,
+          "model": ["7", 0],
+          "latent": ["50", 0]
+        },
+        "class_type": "ModelSamplingFluxNormalized",
+        "_meta": {
+          "title": "Model Sampling Flux Normalized"
+        }
+      },
+      "32": {
+        "inputs": {
+          "sampler_name": "uni_pc"
+        },
+        "class_type": "KSamplerSelect",
+        "_meta": {
+          "title": "KSamplerSelect"
+        }
+      },
+      "33": {
+        "inputs": {
+          "model": ["27", 0],
+          "conditioning": ["15", 0]
+        },
+        "class_type": "BasicGuider",
+        "_meta": {
+          "title": "BasicGuider"
+        }
+      },
+      "34": {
+        "inputs": {
+          "scheduler": "ays",
+          "steps": 12,
+          "denoise": 0.35999999999999943,
+          "model": ["27", 0]
+        },
+        "class_type": "BasicScheduler",
+        "_meta": {
+          "title": "BasicScheduler"
+        }
+      },
+      "35": {
+        "inputs": {
+          "factor": 0.9999999999999999,
+          "start": 0.10000000000000006,
+          "end": 0.7999999999999998,
+          "sigmas": ["34", 0]
+        },
+        "class_type": "MultiplySigmas",
+        "_meta": {
+          "title": "Multiply Sigmas (stateless)"
+        }
+      },
+      "36": {
+        "inputs": {
+          "noise": ["16", 0],
+          "guider": ["33", 0],
+          "sampler": ["32", 0],
+          "sigmas": ["35", 0],
+          "latent_image": ["27", 1]
+        },
+        "class_type": "SamplerCustomAdvanced",
+        "_meta": {
+          "title": "SamplerCustomAdvanced"
+        }
+      },
+      "39": {
+        "inputs": {
+          "max_shift": 1.15,
+          "base_shift": 0.5,
+          "model": ["7", 0],
+          "latent": ["14", 0]
+        },
+        "class_type": "ModelSamplingFluxNormalized",
+        "_meta": {
+          "title": "Model Sampling Flux Normalized"
+        }
+      },
+      "40": {
+        "inputs": {
+          "samples": ["36", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
+      },
+      "50": {
+        "inputs": {
+          "target_resolution": "6MP",
+          "upscale_method": "nearest-exact",
+          "noise_scale": 0.29999999999999993,
+          "blend_opacity": 10,
+          "image": ["22", 0],
+          "vae": ["10", 0]
+        },
+        "class_type": "FluxHighresFixScaler",
+        "_meta": {
+          "title": "Flux Highres Fix Scaler"
+        }
+      },
+      "51": {
+        "inputs": {
+          "input_block": false,
+          "middle_block": false,
+          "output_block": false,
+          "slice_b1": 640,
+          "slice_b2": 320,
+          "b1": 1.1,
+          "b2": 1.2,
+          "s1": 0.9,
+          "s2": 0.2,
+          "start_percent": 0,
+          "end_percent": 1,
+          "threshold": 1
+        },
+        "class_type": "FreeU2PPM",
+        "_meta": {
+          "title": "ppm dummy node"
+        }
+      },
+      "53": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["22", 0]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
+      },
+      "54": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["40", 0]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
+      },
+      "60": {
+        "inputs": {
+          "apply_to_query": true,
+          "apply_to_key": true,
+          "apply_to_value": true,
+          "apply_to_out": true,
+          "clip_l_0": 1,
+          "clip_l_1": 1,
+          "clip_l_2": 1,
+          "clip_l_3": 1,
+          "clip_l_4": 1,
+          "clip_l_5": 1,
+          "clip_l_6": 1,
+          "clip_l_7": 1,
+          "clip_l_8": 1,
+          "clip_l_9": 1,
+          "clip_l_10": 1,
+          "clip_l_11": 1,
+          "t5xxl_0": 1,
+          "t5xxl_1": 1,
+          "t5xxl_2": 1,
+          "t5xxl_3": 1,
+          "t5xxl_4": 1,
+          "t5xxl_5": 1,
+          "t5xxl_6": 1,
+          "t5xxl_7": 1,
+          "t5xxl_8": 1,
+          "t5xxl_9": 1,
+          "t5xxl_10": 1,
+          "t5xxl_11": 1,
+          "t5xxl_12": 1,
+          "t5xxl_13": 1,
+          "t5xxl_14": 1,
+          "t5xxl_15": 1,
+          "t5xxl_16": 1,
+          "t5xxl_17": 1,
+          "t5xxl_18": 1,
+          "t5xxl_19": 1,
+          "t5xxl_20": 1,
+          "t5xxl_21": 1,
+          "t5xxl_22": 1,
+          "t5xxl_23": 1,
+          "RESET ALL": null,
+          "ZERO ALL": null,
+          "REPEAT FIRST": null,
+          "clip": ["9", 0]
+        },
+        "class_type": "FluxAttentionSeeker+",
+        "_meta": {
+          "title": "🔧 Flux Attention Seeker"
+        }
+      },
+      "61": {
+        "inputs": {
+          "blocks": "## 0 = 1.0\n## 1 = 1.0\n## 2 = 0.98\n## 3 = 1.0\n## 4 = 1.0\n## 5 = 1.0\n## 6 = 1.0\n## 7 = 1.0\n## 8 = 1.0\n## 9 = 1.0\n## 10 = 1.0\n## 11 = 1.0\n## 12 = 1.0\n## 13 = 1.0\n## 14 = 1.0\n## 15 = 1.0\n## 16 = 1.0\n## 17 = 1.0\n## 18 = 1.0\n# 0 = 1.0\n# 1 = 1.0\n# 2 = 1.0\n# 3 = 1.0\n# 4 = 1.0\n# 5 = 1.0\n# 6 = 1.0\n# 7 = 1.0\n# 8 = 1.0\n# 9 = 1.0\n# 10 = 1.0\n# 11 = 1.0\n# 12 = 1.0\n# 13 = 1.0\n# 14 = 1.0\n# 15 = 1.0\n# 16 = 1.0\n# 17 = 1.0\n# 18 = 1.0\n# 19 = 1.0\n# 20 = 1.0\n# 21 = 1.0\n# 22 = 1.0\n# 23 = 1.0\n# 24 = 1.0\n# 25 = 1.0\n# 26 = 1.0\n# 27 = 1.0\n# 28 = 1.0\n# 29 = 1.0\n# 30 = 1.0\n# 31 = 1.0\n# 32 = 1.0\n# 33 = 1.0\n# 34 = 1.0\n# 35 = 1.0\n# 36 = 1.0\n# 37 = 1.0",
+          "model": ["1", 0]
+        },
+        "class_type": "FluxBlocksBuster+",
+        "_meta": {
+          "title": "🔧 Flux Model Blocks Buster"
+        }
+      },
+      "62": {
+        "inputs": {
+          "value": 2166762673,
+          "mode": true,
+          "action": "randomize",
+          "last_seed": 746206521
+        },
+        "class_type": "GlobalSeed //Inspire",
+        "_meta": {
+          "title": "Global Seed (Inspire)"
+        }
+      },
+      "65": {
+        "inputs": {
+          "text": "Annay, photo of a girl, black hair at a beach"
+        },
+        "class_type": "Text _O",
+        "_meta": {
+          "title": "Text _O"
+        }
+      }
+    }
+  }
+}

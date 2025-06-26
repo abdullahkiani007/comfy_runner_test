@@ -1,0 +1,8 @@
+# Node Modules
+node_modules/
+**/**/.env
+**/**/.venv
+
+# Terraform
+Infrastructure/cdk/.terraform/
+Infrastructure/cdk/.terraform.lock.hcl

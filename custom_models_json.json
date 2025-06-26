@@ -1,0 +1,5 @@
+{
+  "filename": "flux1-dev.safetensors",
+  "url": "https://example-bucket-waleed.s3.us-east-1.amazonaws.com/flux1-dev.safetensors",
+  "dest": "/ComfyUI/models/unet/flux"
+}
