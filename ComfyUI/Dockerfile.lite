@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Prefer binary wheels over source distributions for faster pip installations
 ENV PIP_PREFER_BINARY=1
 # Ensures output from python is printed immediately to the terminal without buffering
-ENV PYTHONUNBUFFERED=1 
+ENV PYTHONUNBUFFERED=1
 # Speed up some cmake builds
 ENV CMAKE_BUILD_PARALLEL_LEVEL=8
 
@@ -26,7 +26,7 @@ RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Clone with authentication using environment variable
 ARG GITHUB_TOKEN
-RUN git clone https://${GITHUB_TOKEN}@github.com/GENbyNEO/comfy_runner
+RUN git clone https://${GITHUB_TOKEN}@github.com/abdullahkiani007/comfy_runner
 
 ADD src/main.py src/rp_handler.py src/start.sh test_input.json ./
 RUN pip install runpod requests comfy-cli
